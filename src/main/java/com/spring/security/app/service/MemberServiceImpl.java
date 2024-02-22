@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +27,8 @@ import java.util.Optional;
 @Slf4j
 public class MemberServiceImpl implements MemberService, UserDetailsService {
     //private final AuthenticationManager authenticationManager;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     @Override
@@ -59,22 +62,21 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     //login 정보 인증 체크 후 토큰 발급 처리.
     @Override
     public String chkAuthentication(MemberRequest memberRequest) {
-        return "TEST";
-/*
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(memberRequest.getLoginId(),memberRequest.getPassword()));
+
+        //AuthenticationManager 에서 AuthenticationManagerBuilder 바꾸고 순환참조 해결.
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(memberRequest.getLoginId(),memberRequest.getPassword());
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(usernamePasswordAuthenticationToken);
+
+        // Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(memberRequest.getLoginId(),memberRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = JwtProvider.createToken(authentication);
-        return JwtProvider.createToken(authentication);*/
+        return JwtProvider.createToken(authentication);
+
         //return "";
     }
 
     @Override
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
-        log.info("DDD");
-        UserDetails test = memberRepository.findByLoginId(loginId);
-        log.info("DDD");
-        log.info("DDD");
-        //findByLoginId
-        return test;
+        return memberRepository.findByLoginId(loginId);
     }
 }

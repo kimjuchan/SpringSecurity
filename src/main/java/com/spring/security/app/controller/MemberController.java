@@ -43,23 +43,24 @@ public class MemberController {
     @GetMapping("/signin")
     public String memberLogin(@RequestBody MemberRequest memberRequest){
         //MemberCreateRequest 객체 유효성 체크
-        //String getToken = membersService.chkAuthentication(memberRequest);
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(memberRequest.getLoginId(),memberRequest.getPassword());
+        String getToken = membersService.chkAuthentication(memberRequest);
+        return getToken;
+       /* UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(memberRequest.getLoginId(),memberRequest.getPassword());
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(usernamePasswordAuthenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
 
         String jwt = JwtProvider.createToken(authentication);
-
+        return jwt;
+*/
         /*
         String secretKey = "testSecretKey20230327testSecretKey20230327testSecretKey20230327";
         long expireTimeMs = 86000;     // Token 유효 시간 = 60분
 
         String jwtToken = JwtProvider.createToken(memberRequest.getLoginId(), secretKey, expireTimeMs);*/
 
-        return jwt;
-        //return getToken;
+
     }
 
     @GetMapping("/auth/token")
@@ -69,10 +70,6 @@ public class MemberController {
         return String.format("loginId : %s\nnickname : %s",
                 memberDto.getLoginId(), memberDto.getUserName());
     }
-
-
-
-
 
 
 }

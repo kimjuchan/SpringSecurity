@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,7 +28,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
+    private final AuthenticationConfiguration authenticationConfiguration;
     private final MemberRepository memberRepository;
     private final String secretKey = "testSecretKey20230327testSecretKey20230327testSecretKey20230327";
 
@@ -64,12 +65,13 @@ public class SecurityConfig {
         ;
         return http.build();
     }
-
     @Bean
-    // 순환참조 발생하여 static으로 변경 -> memberServiceImpl
-    public static PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        return authenticationManagerBuilder.build();
     }
 
-
+    public AuthenticationManager authenticationManager() throws Exception{
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 }
