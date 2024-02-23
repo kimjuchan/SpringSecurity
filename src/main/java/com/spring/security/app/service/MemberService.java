@@ -6,7 +6,7 @@ import com.spring.security.app.dto.MemberRequest;
 
 public interface MemberService {
 
-    public MemberDto memberSave(MemberCreateRequest memberCreateRequest);
+    public Long memberSave(MemberCreateRequest memberCreateRequest);
     public MemberDto findByLoginId(String loginId);
     public String chkAuthentication(MemberRequest memberRequest);
 }

@@ -9,7 +9,6 @@ import com.spring.security.app.mapper.MemberMapper;
 import com.spring.security.app.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -19,42 +18,29 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberServiceImpl implements MemberService, UserDetailsService {
-    //private final AuthenticationManager authenticationManager;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     @Override
-    public MemberDto memberSave(MemberCreateRequest memberCreateRequest) {
-
+    public Long memberSave(MemberCreateRequest memberCreateRequest) {
         log.info("-----mem create start-----");
         memberCreateRequest.setPassword(passwordEncoder.encode(memberCreateRequest.getPassword()));
-        //param 형변환
         Member member = MemberMapper.INSTANCE.MemberCreateRequestToEntity(memberCreateRequest);
-        log.info("-----MemberCreateRequest to Members Entity change-----");
-        //member save
-        MemberDto saveMemberDto =  MemberMapper.INSTANCE.MembersToMembersDto(memberRepository.save(member));
-        Member getMem = memberRepository.findByLoginId(memberCreateRequest.getLoginId());
-        if (getMem != null) {
-            throw new UsernameNotFoundException("유저 정보를 찾지 못했습니다.");
-        } else {
-            log.info("-----Member info ::  LoginId :: " + getMem.getLoginId() + "  Pwd :: " + getMem.getPassword() + "-----");
-        }
         log.info("-----mem create end-----");
-        return saveMemberDto;
+        return memberRepository.save(member).getId();
     }
 
     @Override
     public MemberDto findByLoginId(String loginId) {
         Member member = memberRepository.findByLoginId(loginId);
-        log.info("LoginId :: {}\n PWD :: {}",member.getLoginId(),member.getPassword());
         return MemberMapper.INSTANCE.MembersToMembersDto(member);
     }
 
@@ -67,12 +53,8 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(memberRequest.getLoginId(),memberRequest.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(usernamePasswordAuthenticationToken);
 
-        // Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(memberRequest.getLoginId(),memberRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = JwtProvider.createToken(authentication);
         return JwtProvider.createToken(authentication);
-
-        //return "";
     }
 
     @Override
