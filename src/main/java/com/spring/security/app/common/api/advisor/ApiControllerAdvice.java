@@ -3,6 +3,7 @@ package com.spring.security.app.common.api.advisor;
 import com.spring.security.app.common.api.dto.ApiErrorResponse;
 import com.spring.security.app.common.api.enums.ApiErrorCode;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,6 +14,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.Date;
@@ -22,12 +24,12 @@ import java.util.Optional;
 @Slf4j
 public class ApiControllerAdvice {
 
-    private ApiErrorResponse apiErrorResponse;
+    private ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> exceptionHandler(Exception e){
         ApiErrorCode apiErrorCode = ApiErrorCode.INTERNAL_SERVER_ERROR;
-        apiErrorResponse.create(apiErrorCode.getHttpStatus(), apiErrorCode.getMessage(), new Date());
+        apiErrorResponse = apiErrorResponse.createErrorReponse(apiErrorCode.getHttpStatus(), apiErrorCode.getMessage(), new Date());
 
         log.error("{} : {}", apiErrorResponse.getStatus(), apiErrorResponse.getErrorMessgae());
         return ResponseEntity.status(apiErrorCode.getHttpStatus()).body(apiErrorResponse);
@@ -42,7 +44,7 @@ public class ApiControllerAdvice {
     })
     public ResponseEntity<ApiErrorResponse> authenticationExceptionHandler(Exception e) {
         ApiErrorCode apiErrorCode = ApiErrorCode.UNAUTHORIZED;
-        apiErrorResponse.create(apiErrorCode.getHttpStatus(), apiErrorCode.getMessage(), new Date());
+        apiErrorResponse.createErrorReponse(apiErrorCode.getHttpStatus(), apiErrorCode.getMessage(), new Date());
 
         log.error("{} : {}", apiErrorCode.name(), e.getMessage(), e);
         return ResponseEntity.status(apiErrorCode.getHttpStatus()).body(apiErrorResponse);
@@ -54,7 +56,7 @@ public class ApiControllerAdvice {
     @ExceptionHandler(value = {NoHandlerFoundException.class, EntityNotFoundException.class})
     public ResponseEntity<ApiErrorResponse> notFoundExceptionHandler(final Exception e) {
         ApiErrorCode apiErrorCode = ApiErrorCode.NOT_FOUND;
-        apiErrorResponse.create(apiErrorCode.getHttpStatus(), apiErrorCode.getMessage(), new Date());
+        apiErrorResponse.createErrorReponse(apiErrorCode.getHttpStatus(), apiErrorCode.getMessage(), new Date());
 
         log.error("{} : {}", apiErrorCode.name(), e.getMessage(), e);
         return ResponseEntity.status(apiErrorCode.getHttpStatus()).body(apiErrorResponse);
@@ -66,7 +68,7 @@ public class ApiControllerAdvice {
         Optional<FieldError> error = Optional.of(bindingResult.getFieldError());
         ApiErrorCode apiErrorCode = ApiErrorCode.BAD_REQUEST;
         //이게 맞나 ??
-        apiErrorResponse.create(apiErrorCode.getHttpStatus(),error.isPresent() ? error.get().getDefaultMessage() : "예외처리 도중 NullPointerException....  ", new Date());
+        apiErrorResponse.createErrorReponse(apiErrorCode.getHttpStatus(),error.isPresent() ? error.get().getDefaultMessage() : "예외처리 도중 NullPointerException....  ", new Date());
         log.error("{} : {}", apiErrorCode.name(), e.getMessage(), e);
         return ResponseEntity.status(apiErrorCode.getHttpStatus()).body(apiErrorResponse);
     }

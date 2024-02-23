@@ -42,6 +42,8 @@ spring:
         format_sql : true
 
 
+jwt:
+  secret-key: d8a0e844d96d4fbb990aa793e3dada8622interconversions
 
 
 

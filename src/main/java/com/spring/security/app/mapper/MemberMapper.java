@@ -4,6 +4,7 @@ import com.spring.security.app.domain.Member;
 import com.spring.security.app.dto.MemberCreateRequest;
 import com.spring.security.app.dto.MemberDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
@@ -23,7 +24,9 @@ public interface MemberMapper {
     Member MembersDtoToMembers(MemberDto membersDto);
 
     //Member TO MembersDto Type 변환
-    MemberDto MembersToMembersDto(Member members);
+    @Mapping(source = "username" ,target = "userName")
+    @Mapping(source = "roleType" ,target = "roleType")
+    MemberDto MembersToMembersDto(Member member);
 
 
 

@@ -29,8 +29,11 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final JwtProvider jwtProvider;
     @Override
     public Long memberSave(MemberCreateRequest memberCreateRequest) {
+
         log.info("-----mem create start-----");
         memberCreateRequest.setPassword(passwordEncoder.encode(memberCreateRequest.getPassword()));
         Member member = MemberMapper.INSTANCE.MemberCreateRequestToEntity(memberCreateRequest);
@@ -41,7 +44,8 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Override
     public MemberDto findByLoginId(String loginId) {
         Member member = memberRepository.findByLoginId(loginId);
-        return MemberMapper.INSTANCE.MembersToMembersDto(member);
+        MemberDto memberDto = MemberMapper.INSTANCE.MembersToMembersDto(member);
+        return memberDto;
     }
 
 
@@ -54,7 +58,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(usernamePasswordAuthenticationToken);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return JwtProvider.createToken(authentication);
+        return jwtProvider.createToken(authentication);
     }
 
     @Override

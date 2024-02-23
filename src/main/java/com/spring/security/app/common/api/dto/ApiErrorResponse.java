@@ -25,6 +25,11 @@ public class ApiErrorResponse {
     private String errorMessgae;
     private Date errorTimes;
 
+    public ApiErrorResponse(HttpStatus status, String errorMessgae) {
+        this.status = status;
+        this.errorMessgae = errorMessgae;
+    }
+
     public ApiErrorResponse(String errorMessgae, Date errorTimes) {
         this.errorMessgae = errorMessgae;
         this.errorTimes = errorTimes;
@@ -36,8 +41,8 @@ public class ApiErrorResponse {
         this.errorTimes = errorTimes;
     }
 
-    public ApiErrorResponse create(HttpStatus status, String errorMessgae, Date errorTimes){
-        return ApiErrorResponse.builder()
+    public ApiErrorResponse createErrorReponse(HttpStatus status, String errorMessgae, Date errorTimes){
+        return  ApiErrorResponse.builder()
                 .status(status)
                 .errorMessgae(errorMessgae)
                 .errorTimes(errorTimes)

@@ -18,13 +18,13 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -42,11 +42,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final PasswordEncoder passwordEncoder;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final MemberRepository memberRepository;
-    private final String secretKey = "testSecretKey20230327testSecretKey20230327testSecretKey20230327";
-
+    //private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     //private final UserDetailsService userDetailsService;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -75,10 +74,10 @@ public class SecurityConfig {
                 //.userDetailsService(userDetailsService)
                 .logout(withDefaults())
                 //UsernamePasswordAuthenticationFilter 전 JwtAuthenticationFilter 실행.
-                .addFilterBefore(new JwtAuthenticationFilter(memberRepository, secretKey), UsernamePasswordAuthenticationFilter.class)
-                /*.exceptionHandling((exceptionConfig) ->
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling((exceptionConfig) ->
                         exceptionConfig.authenticationEntryPoint(unauthorizedEntryPoint).accessDeniedHandler(accessDeniedHandler)
-                ) // 401 403 관련 예외처리*/
+                ) // 401 403 관련 예외처리
         ;
         return http.build();
     }
@@ -91,11 +90,11 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager() throws Exception{
         return authenticationConfiguration.getAuthenticationManager();
     }
-
+    //해당 두개는 advisor 타기 전 filter (웹 컨테이너에서 예외처리됨)
     //Authentication에 대한 예외처리
     private final AuthenticationEntryPoint unauthorizedEntryPoint =
             (request, response, authException) -> {
-                ApiErrorResponse fail = new ApiErrorResponse("Status :: "+HttpStatus.UNAUTHORIZED.value() + " errorMessage :: "+HttpStatus.UNAUTHORIZED.getReasonPhrase(), new Date());
+                ApiErrorResponse fail = new ApiErrorResponse(HttpStatus.valueOf(HttpStatus.UNAUTHORIZED.value()),HttpStatus.UNAUTHORIZED.getReasonPhrase());
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 String json = new ObjectMapper().writeValueAsString(fail);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -107,7 +106,7 @@ public class SecurityConfig {
     //Authorization에 대한 예외처리
     private final AccessDeniedHandler accessDeniedHandler =
             (request, response, accessDeniedException) -> {
-                ApiErrorResponse fail = new ApiErrorResponse("Status :: "+HttpStatus.FORBIDDEN.value() + " errorMessage :: "+HttpStatus.UNAUTHORIZED.getReasonPhrase(), new Date());
+                ApiErrorResponse fail = new ApiErrorResponse(HttpStatus.valueOf(HttpStatus.UNAUTHORIZED.value()),HttpStatus.UNAUTHORIZED.getReasonPhrase());
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 String json = new ObjectMapper().writeValueAsString(fail);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);

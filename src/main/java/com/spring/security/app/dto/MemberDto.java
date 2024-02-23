@@ -1,7 +1,7 @@
 package com.spring.security.app.dto;
 
 
-import com.spring.security.app.enums.Role;
+import com.spring.security.app.enums.RoleType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,5 +11,5 @@ public class MemberDto {
     private String loginId;
     private String userName;
     private String email;
-    private Role role;
+    private RoleType roleType;
 }

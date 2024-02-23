@@ -2,9 +2,8 @@ package com.spring.security.app.domain;
 
 
 import com.spring.security.app.common.BaseEntity;
-import com.spring.security.app.enums.Role;
+import com.spring.security.app.enums.RoleType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,14 +11,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Member extends BaseEntity implements UserDetails {
@@ -42,7 +38,17 @@ public class Member extends BaseEntity implements UserDetails {
 
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private RoleType roleType;
+
+    @Builder
+    public Member(Long id, String loginId, String userName, String password, String email, RoleType roleType) {
+        this.id = id;
+        this.loginId = loginId;
+        this.userName = userName;
+        this.password = password;
+        this.email = email;
+        this.roleType = roleType;
+    }
 
 
     @Override

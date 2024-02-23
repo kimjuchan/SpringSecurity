@@ -1,6 +1,7 @@
 package com.spring.security.app.controller;
 
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.spring.security.app.common.api.advisor.ApiSuccessResponse;
 import com.spring.security.app.dto.MemberCreateRequest;
 import com.spring.security.app.dto.MemberDto;
@@ -8,7 +9,6 @@ import com.spring.security.app.dto.MemberRequest;
 import com.spring.security.app.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.URL;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -16,18 +16,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user/")
 public class MemberController {
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberService membersService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> membersCreate(@RequestBody @Valid MemberCreateRequest memberCreateRequest){
+    public ResponseEntity<URI> membersCreate(@RequestBody @Valid MemberCreateRequest memberCreateRequest){
         return ResponseEntity.created(ApiSuccessResponse.createdLocation(membersService.memberSave(memberCreateRequest))).build();
     }
 
